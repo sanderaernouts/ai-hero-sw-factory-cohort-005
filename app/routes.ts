@@ -47,6 +47,8 @@ export default [
     route("settings", "routes/settings.tsx"),
     route("team", "routes/team.tsx"),
     route("redeem/:code", "routes/redeem.$code.tsx"),
+    // PROTOTYPE — Knock spike, throwaway (prototype/knock-spike branch)
+    route("prototype/knock-spike", "routes/prototype.knock-spike.tsx"),
   ]),
   route("signup", "routes/signup.tsx"),
   route("login", "routes/login.tsx"),
