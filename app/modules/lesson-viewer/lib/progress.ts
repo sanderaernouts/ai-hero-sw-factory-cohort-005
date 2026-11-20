@@ -1,4 +1,3 @@
-import { db } from "~/db";
 import {
   lessonProgress,
   lessons,
@@ -7,8 +6,9 @@ import {
   LessonProgressStatus,
 } from "~/db/schema";
 import { and, desc, eq, or, sql } from "drizzle-orm";
+import type { Db } from "./db";
 
-export function getLessonProgress(userId: number, lessonId: number) {
+export function getLessonProgress(db: Db, userId: number, lessonId: number) {
   return db
     .select()
     .from(lessonProgress)
@@ -21,7 +21,11 @@ export function getLessonProgress(userId: number, lessonId: number) {
     .get();
 }
 
-export function getLessonProgressForCourse(userId: number, courseId: number) {
+export function getLessonProgressForCourse(
+  db: Db,
+  userId: number,
+  courseId: number
+) {
   const courseModules = db
     .select({ id: modules.id })
     .from(modules)
@@ -50,8 +54,8 @@ export function getLessonProgressForCourse(userId: number, courseId: number) {
     .all();
 }
 
-export function markLessonComplete(userId: number, lessonId: number) {
-  const existing = getLessonProgress(userId, lessonId);
+export function markLessonComplete(db: Db, userId: number, lessonId: number) {
+  const existing = getLessonProgress(db, userId, lessonId);
 
   if (existing) {
     return db
@@ -77,8 +81,8 @@ export function markLessonComplete(userId: number, lessonId: number) {
     .get();
 }
 
-export function markLessonInProgress(userId: number, lessonId: number) {
-  const existing = getLessonProgress(userId, lessonId);
+export function markLessonInProgress(db: Db, userId: number, lessonId: number) {
+  const existing = getLessonProgress(db, userId, lessonId);
 
   if (existing) {
     if (existing.status === LessonProgressStatus.Completed) {
@@ -103,7 +107,7 @@ export function markLessonInProgress(userId: number, lessonId: number) {
     .get();
 }
 
-export function getLastWatchPosition(userId: number, lessonId: number) {
+export function getLastWatchPosition(db: Db, userId: number, lessonId: number) {
   const lastEvent = db
     .select()
     .from(videoWatchEvents)
@@ -121,6 +125,7 @@ export function getLastWatchPosition(userId: number, lessonId: number) {
 }
 
 export function calculateWatchProgress(
+  db: Db,
   userId: number,
   lessonId: number,
   videoDurationSeconds: number
