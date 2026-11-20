@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { calculateWatchProgress, flattenCourseLessons } from "../index.server";
+import { flattenCourseLessons } from "../course.server";
+import { calculateWatchProgress } from "../progress.server";
 
 describe("flattenCourseLessons", () => {
   it("lists every lesson in curriculum order, tagged with its module", () => {
