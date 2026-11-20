@@ -15,7 +15,9 @@ Copy `example/` to start a new module.
 
 **Import only through a module's entry points (its root files).** Anything in a subfolder is private, whatever the folder is called.
 
-**Don't write barrel files.** Expose several small entry points instead of re-exporting a whole subtree through one `index.ts`.
+**Don't write barrel files.** Expose several small entry points instead of re-exporting a whole subtree through one `index.ts`. An entry point re-exports from at most one `lib/` file.
+
+**`lib/` takes the database as an argument.** An entry point binds the real `db` (`createInstructorAnalytics(db)`), and tests pass a test database to the same factory. `npm run lint:boundaries` enforces this.
 
 ## The rules
 

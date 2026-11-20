@@ -95,6 +95,14 @@ module.exports = {
       to: { path: ["^app/db/", "^node_modules/(drizzle-orm|better-sqlite3)/"] },
     },
     {
+      name: "module-lib-no-db-connection",
+      comment:
+        "A module's lib/ takes the database as an argument. Only its entry points import the real connection and pass it in, so tests can pass a test database instead of mocking ~/db. See app/modules/README.md.",
+      severity: "error",
+      from: { path: `^${R}/[^/]+/lib/` },
+      to: { path: ["^app/db/index\\.ts$", "^node_modules/better-sqlite3/"] },
+    },
+    {
       name: "components-no-db-connection",
       comment:
         "Components ship to the browser, so they may not open the database connection: it pulls better-sqlite3 into the client bundle and breaks hydration. Get data through a loader instead.",

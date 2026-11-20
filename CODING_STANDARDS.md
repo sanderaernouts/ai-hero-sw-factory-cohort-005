@@ -113,3 +113,24 @@ Name and extract until a comment is unnecessary. A comment earns its place
 only for a _why_ the code cannot express: a constraint, a decision, a link to
 the ADR behind it. A comment that restates _what_ the code does goes stale the
 first time the code changes.
+
+## Every state of a form says what the user can do next
+
+When a form cannot be submitted, it says why. An empty notes box with Save
+greyed out still showed "Saved · last edited 2 minutes ago", so the student
+could not tell that a cleared note cannot be saved. Check each state the form
+can be in: empty, changed, saving, saved, invalid, failed.
+
+## Moved code is reviewed as a move
+
+Code moved without changes, for example to split a file over the token limit,
+is checked only for whether the move kept it the same. Problems the code
+already had before the move are not findings on this change. Note them under
+"Follow-ups" in the verdict instead. Show which blocks moved with:
+
+```bash
+git diff --color-moved=dimmed-zebra --color-moved-ws=ignore-all-space <base>...HEAD
+```
+
+The implementer commits the split on its own, before the change, so you can
+review the split commit as a move and the change on its own.

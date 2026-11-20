@@ -7,6 +7,8 @@ built for exactly this — one command per action, an answer on stdout.
 
 ## Once, per machine
 
+The agent workflows install it already. On your own machine:
+
 ```bash
 npm install -g agent-browser
 agent-browser install
@@ -51,6 +53,42 @@ change you are reporting on trust.
 
 Screenshots are PR evidence: a before and an after for a change that shows in
 the UI.
+
+## Sign in as a user
+
+The DevUI panel switches users by posting to `/api/switch-user`. Do the same
+from the page:
+
+```bash
+agent-browser open http://localhost:5173/
+agent-browser eval "fetch('/api/switch-user',{method:'POST',body:new URLSearchParams({userId:'5'})}).then(r=>r.status)"
+```
+
+In a freshly seeded database, user 5 is Emma Wilson, a Student enrolled in both
+seeded courses. For another role, look it up:
+`sqlite3 data.db "select id, name, role from users"`.
+
+## Screenshots
+
+Hide the DevUI panel first, so it does not cover the page:
+
+```bash
+agent-browser eval "document.querySelectorAll('[data-devui]').forEach(e=>e.remove())"
+agent-browser screenshot "[data-slot=card]:has(textarea)" /tmp/evidence/after.png
+```
+
+For a "before" screenshot, run the base branch next to your own on another
+port:
+
+```bash
+git worktree add /tmp/before origin/main
+ln -s "$PWD/node_modules" /tmp/before/node_modules
+cp data.db /tmp/before/
+(cd /tmp/before && npx react-router dev --port 5174 > /tmp/before.log 2>&1 &)
+```
+
+Use `npx react-router dev` here, not `npm run dev`. When you are done, run
+`git worktree remove --force /tmp/before`.
 
 ## Two things that will bite you
 
