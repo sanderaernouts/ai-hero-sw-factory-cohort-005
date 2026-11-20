@@ -1,16 +1,11 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { createTestDb, seedBaseData, type TestDb } from "~/test/setup";
 import * as schema from "~/db/schema";
 import { QuestionType } from "~/db/schema";
-import { getQuizWithQuestions } from "../quiz.server";
+import { createQuiz } from "../quiz.server";
 
-// lesson-viewer reads the app's shared db, so swap in a fresh test db per test.
-const holder = vi.hoisted(() => ({ db: undefined as unknown as TestDb }));
-vi.mock("~/db", () => ({
-  get db() {
-    return holder.db;
-  },
-}));
+let db: TestDb;
+let quiz: ReturnType<typeof createQuiz>;
 
 // ─── Fixtures ───
 // Nothing in lesson-viewer writes quizzes, so rows go in directly.
@@ -18,19 +13,20 @@ vi.mock("~/db", () => ({
 let quizId: number;
 
 beforeEach(() => {
-  holder.db = createTestDb();
-  const { course } = seedBaseData(holder.db);
-  const mod = holder.db
+  db = createTestDb();
+  quiz = createQuiz(db);
+  const { course } = seedBaseData(db);
+  const mod = db
     .insert(schema.modules)
     .values({ courseId: course.id, title: "Basics", position: 1 })
     .returning()
     .get();
-  const lesson = holder.db
+  const lesson = db
     .insert(schema.lessons)
     .values({ moduleId: mod.id, title: "Lesson 1", position: 1 })
     .returning()
     .get();
-  quizId = holder.db
+  quizId = db
     .insert(schema.quizzes)
     .values({ lessonId: lesson.id, title: "Quiz", passingScore: 0.7 })
     .returning()
@@ -42,7 +38,7 @@ function addQuestion(
   position: number,
   options: string[]
 ) {
-  const question = holder.db
+  const question = db
     .insert(schema.quizQuestions)
     .values({
       quizId,
@@ -53,17 +49,18 @@ function addQuestion(
     .returning()
     .get();
   for (const optionText of options) {
-    holder.db
-      .insert(schema.quizOptions)
+    db.insert(schema.quizOptions)
       .values({ questionId: question.id, optionText, isCorrect: false })
       .run();
   }
 }
 
 function optionTexts(id: number) {
-  return getQuizWithQuestions(id)?.questions.map((question) =>
-    question.options.map((option) => option.optionText)
-  );
+  return quiz
+    .getQuizWithQuestions(id)
+    ?.questions.map((question) =>
+      question.options.map((option) => option.optionText)
+    );
 }
 
 describe("getQuizWithQuestions", () => {
@@ -82,6 +79,6 @@ describe("getQuizWithQuestions", () => {
   });
 
   it("returns null for an unknown quiz", () => {
-    expect(getQuizWithQuestions(quizId + 1)).toBeNull();
+    expect(quiz.getQuizWithQuestions(quizId + 1)).toBeNull();
   });
 });

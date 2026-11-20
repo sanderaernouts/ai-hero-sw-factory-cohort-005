@@ -1,4 +1,3 @@
-import { db } from "~/db";
 import {
   quizzes,
   quizQuestions,
@@ -7,17 +6,18 @@ import {
   quizAnswers,
 } from "~/db/schema";
 import { and, desc, eq, inArray } from "drizzle-orm";
+import type { Db } from "./db";
 
-export function getQuizByLessonId(lessonId: number) {
+export function getQuizByLessonId(db: Db, lessonId: number) {
   return db.select().from(quizzes).where(eq(quizzes.lessonId, lessonId)).get();
 }
 
-export function getQuizById(quizId: number) {
+export function getQuizById(db: Db, quizId: number) {
   return db.select().from(quizzes).where(eq(quizzes.id, quizId)).get();
 }
 
-export function getQuizWithQuestions(quizId: number) {
-  const quiz = getQuizById(quizId);
+export function getQuizWithQuestions(db: Db, quizId: number) {
+  const quiz = getQuizById(db, quizId);
   if (!quiz) return null;
 
   const questions = db
@@ -45,7 +45,7 @@ export function getQuizWithQuestions(quizId: number) {
   return { ...quiz, questions: questionsWithOptions };
 }
 
-export function getBestAttempt(userId: number, quizId: number) {
+export function getBestAttempt(db: Db, userId: number, quizId: number) {
   return db
     .select()
     .from(quizAttempts)
@@ -73,6 +73,7 @@ export type QuestionResult = {
 };
 
 export function computeResult(
+  db: Db,
   userId: number,
   quizId: number,
   selectedAnswers: Record<number, number>

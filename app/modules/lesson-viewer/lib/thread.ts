@@ -1,10 +1,10 @@
 import { renderComment } from "~/lib/comment-markdown.server";
 import { markdown, type Markdown } from "~/lib/text";
 import { type RenderedComment } from "~/components/comment-thread";
-import { db } from "~/db";
 import { comments, users, UserRole } from "~/db/schema";
 import { asc, eq } from "drizzle-orm";
 import { getCourseForLesson } from "./course";
+import type { Db } from "./db";
 
 export type CommentAuthor = {
   id: number;
@@ -24,12 +24,12 @@ export type ThreadComment = {
   replies: ThreadComment[];
 };
 
-export function getCommentById(commentId: number) {
+export function getCommentById(db: Db, commentId: number) {
   return db.select().from(comments).where(eq(comments.id, commentId)).get();
 }
 
-export function getLessonThread(lessonId: number): ThreadComment[] {
-  const course = getCourseForLesson(lessonId);
+export function getLessonThread(db: Db, lessonId: number): ThreadComment[] {
+  const course = getCourseForLesson(db, lessonId);
   if (!course) return [];
 
   const rows = db
