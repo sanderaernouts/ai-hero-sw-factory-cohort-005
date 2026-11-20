@@ -51,13 +51,16 @@ describe("describeNoteDraft", () => {
     expect(result.overLimit).toBe(false);
   });
 
-  it("does not offer to save a blank draft", () => {
+  it("says a cleared note can't be saved rather than showing it as saved", () => {
     const result = describeNoteDraft({ draft: "   ", saved });
     expect(result.canSave).toBe(false);
-    expect(result.status).toEqual({
-      kind: "saved",
-      updatedAt: saved.updatedAt,
-    });
+    expect(result.status).toEqual({ kind: "blank" });
+  });
+
+  it("shows an untouched blank editor as empty when there is no note yet", () => {
+    const result = describeNoteDraft({ draft: "   ", saved: null });
+    expect(result.canSave).toBe(false);
+    expect(result.status).toEqual({ kind: "empty" });
   });
 
   it("allows a draft of exactly the limit", () => {
