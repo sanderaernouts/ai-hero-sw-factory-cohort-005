@@ -102,6 +102,24 @@
         "import/no-default-export": "off"
       }
     },
+    // A component takes its own props type. Importing a route's generated
+    // types makes the component depend on that route.
+    {
+      "files": ["app/components/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["**/+types/*"],
+                "message": "A component does not import a route's generated types. Give it its own props type."
+              }
+            ]
+          }
+        ]
+      }
+    },
     {
       "files": ["**/*.test.ts", "**/*.test.tsx"],
       "rules": {
