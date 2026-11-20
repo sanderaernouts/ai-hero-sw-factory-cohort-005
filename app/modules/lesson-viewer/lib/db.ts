@@ -9,7 +9,6 @@ type Bound<F> = F extends (db: Db, ...args: infer A) => infer R
   ? (...args: A) => R
   : never;
 
-/** Hands each query the given database, so callers pass only their own arguments. */
 export function bindDb<T extends Record<string, Query>>(
   db: Db,
   queries: T
