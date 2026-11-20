@@ -4,7 +4,10 @@ export type NoteStatus =
   | { kind: "error"; message: string }
   | { kind: "unsaved" }
   | { kind: "saved"; updatedAt: string }
+  | { kind: "blank" }
   | { kind: "empty" };
+
+export type SavedNote = { body: string; updatedAt: string };
 
 export type NoteDraft = {
   length: number;
@@ -14,13 +17,13 @@ export type NoteDraft = {
   status: NoteStatus;
 };
 
-export function describe({
+export function describeNoteDraft({
   draft,
   saved,
   error,
 }: {
   draft: string;
-  saved: { body: string; updatedAt: string } | null;
+  saved: SavedNote | null;
   error?: string;
 }): NoteDraft {
   // The server trims before it saves, so compare and count what it will keep.
@@ -31,12 +34,13 @@ export function describe({
 
   let status: NoteStatus;
   if (error) status = { kind: "error", message: error };
+  else if (blank && saved) status = { kind: "blank" };
   else if (changed && !blank) status = { kind: "unsaved" };
   else if (saved) status = { kind: "saved", updatedAt: saved.updatedAt };
   else status = { kind: "empty" };
 
   return {
-    length: draft.length,
+    length: kept.length,
     maxLength: MAX_NOTE_LENGTH,
     overLimit,
     canSave: changed && !blank && !overLimit,

@@ -8,14 +8,11 @@ import {
   describeNoteDraft,
   type NoteDraft,
   type NoteStatus,
+  type SavedNote,
 } from "~/modules/lesson-note";
 import { cn, formatRelativeTime } from "~/lib/utils";
 
-export function LessonNote({
-  note,
-}: {
-  note: { body: string; updatedAt: string } | null;
-}) {
+export function LessonNote({ note }: { note: SavedNote | null }) {
   const fetcher = useFetcher<{ ok: boolean; error?: string }>();
   const [draft, setDraft] = useState(note?.body ?? "");
   const isSaving = fetcher.state !== "idle";
@@ -100,6 +97,12 @@ function NoteStatusText({ status }: { status: NoteStatus }) {
     case "unsaved":
       return (
         <span className="text-xs text-muted-foreground">Unsaved changes</span>
+      );
+    case "blank":
+      return (
+        <span className="text-xs text-muted-foreground">
+          A note can't be empty
+        </span>
       );
     case "saved":
       return (
