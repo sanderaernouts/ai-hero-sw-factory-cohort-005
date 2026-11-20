@@ -59,9 +59,7 @@ function renderHome(data: LoaderData) {
   return renderToString(<Stub initialEntries={["/"]} />);
 }
 
-// Each block runs from one <section> or <footer> to the start of the next, so
-// a block holds one band of the page and nothing below it.
-function blockHolding(html: string, text: string) {
+function pageBandHolding(html: string, text: string) {
   const match = html
     .split(/(?=<section|<footer)/)
     .find((block) => block.includes(text));
@@ -94,12 +92,14 @@ describe("landing page", () => {
     const page = renderHome(loaderData());
 
     for (const text of ["Learn to code", "Available Courses", "<footer"]) {
-      expect(classesOf(blockHolding(page, text))).not.toContain("text-center");
+      expect(classesOf(pageBandHolding(page, text))).not.toContain(
+        "text-center"
+      );
     }
   });
 
   it("does not centre the hero paragraph or its buttons", () => {
-    const hero = blockHolding(renderHome(loaderData()), "Learn to code");
+    const hero = pageBandHolding(renderHome(loaderData()), "Learn to code");
     const paragraph = openingTagBefore(hero, "Structured courses");
     const buttonRow = openingTagBefore(hero, '<a data-slot="button"');
 
@@ -110,7 +110,7 @@ describe("landing page", () => {
   });
 
   it("shows the newest course beside the hero copy", () => {
-    const hero = blockHolding(
+    const hero = pageBandHolding(
       renderHome(
         loaderData({
           featuredCourses: [
@@ -130,7 +130,7 @@ describe("landing page", () => {
   });
 
   it("leaves the spotlight out when no course is published", () => {
-    const hero = blockHolding(
+    const hero = pageBandHolding(
       renderHome(loaderData({ featuredCourses: [] })),
       "Learn to code"
     );
@@ -140,8 +140,11 @@ describe("landing page", () => {
   });
 
   it("offers sign-up to a visitor and the dashboard to a signed-in user", () => {
-    const visitorHero = blockHolding(renderHome(loaderData()), "Learn to code");
-    const memberHero = blockHolding(
+    const visitorHero = pageBandHolding(
+      renderHome(loaderData()),
+      "Learn to code"
+    );
+    const memberHero = pageBandHolding(
       renderHome(
         loaderData({
           currentUser: { id: 5, name: "Emma Wilson", role: UserRole.Student },
