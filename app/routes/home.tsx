@@ -268,76 +268,31 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </div>
         </div>
         {spotlight && (
-          <Link
-            to={`/courses/${spotlight.slug}`}
-            className="group block"
+          <CourseCard
+            course={spotlight}
+            label="Newest course"
             aria-label={`Newest course: ${spotlight.title}`}
-          >
-            <Card className="overflow-hidden pt-0 shadow-lg transition-shadow group-hover:shadow-xl">
-              <CourseImage
-                src={spotlight.coverImageUrl}
-                alt={spotlight.title}
-                className="aspect-video w-full object-cover"
-              />
-              <CardHeader>
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-                  Newest course
-                </p>
-                <h2 className="text-xl font-semibold leading-snug group-hover:text-primary">
-                  {spotlight.title}
-                </h2>
-              </CardHeader>
-              <CardContent>
-                <p className="line-clamp-2 text-sm text-muted-foreground">
-                  {spotlight.description}
-                </p>
-              </CardContent>
-              <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <User className="size-3" />
-                  {spotlight.instructorName ?? "Instructor"}
-                </span>
-                <span className="flex items-center gap-1">
-                  <BookOpen className="size-3" />
-                  {spotlight.lessonCount} lessons
-                </span>
-              </CardFooter>
-            </Card>
-          </Link>
+          />
         )}
       </section>
 
       <section className="border-y border-border bg-muted/50 py-12">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 sm:grid-cols-3">
-          <div className="flex items-center gap-4">
-            <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-              <BookOpen className="size-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{totalCourses}</p>
-              <p className="text-sm text-muted-foreground">Available Courses</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-              <GraduationCap className="size-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{totalCategories}</p>
-              <p className="text-sm text-muted-foreground">Categories</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-              <Users className="size-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">Self-paced</p>
-              <p className="text-sm text-muted-foreground">
-                Learn on your schedule
-              </p>
-            </div>
-          </div>
+          <Stat
+            icon={BookOpen}
+            value={totalCourses}
+            label="Available Courses"
+          />
+          <Stat
+            icon={GraduationCap}
+            value={totalCategories}
+            label="Categories"
+          />
+          <Stat
+            icon={Users}
+            value="Self-paced"
+            label="Learn on your schedule"
+          />
         </div>
       </section>
 
@@ -361,39 +316,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {featuredCourses.map((course) => (
-              <Link
-                key={course.id}
-                to={`/courses/${course.slug}`}
-                className="group"
-              >
-                <Card className="h-full overflow-hidden pt-0 transition-shadow group-hover:shadow-md">
-                  <CourseImage
-                    src={course.coverImageUrl}
-                    alt={course.title}
-                    className="aspect-video w-full object-cover"
-                  />
-                  <CardHeader>
-                    <h3 className="font-semibold leading-snug group-hover:text-primary">
-                      {course.title}
-                    </h3>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="line-clamp-2 text-sm text-muted-foreground">
-                      {course.description}
-                    </p>
-                  </CardContent>
-                  <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <User className="size-3" />
-                      {course.instructorName ?? "Instructor"}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <BookOpen className="size-3" />
-                      {course.lessonCount} lessons
-                    </span>
-                  </CardFooter>
-                </Card>
-              </Link>
+              <CourseCard key={course.id} course={course} />
             ))}
           </div>
         </section>
@@ -412,6 +335,91 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         countryTierInfo={countryTierInfo}
         countries={countries}
       />
+    </div>
+  );
+}
+
+type FeaturedCourse =
+  Route.ComponentProps["loaderData"]["featuredCourses"][number];
+
+function CourseCard({
+  course,
+  label,
+  "aria-label": ariaLabel,
+}: {
+  course: FeaturedCourse;
+  label?: string;
+  "aria-label"?: string;
+}) {
+  const Title = label ? "h2" : "h3";
+  return (
+    <Link
+      to={`/courses/${course.slug}`}
+      className="group block"
+      aria-label={ariaLabel}
+    >
+      <Card
+        className={
+          label
+            ? "overflow-hidden pt-0 shadow-lg transition-shadow group-hover:shadow-xl"
+            : "h-full overflow-hidden pt-0 transition-shadow group-hover:shadow-md"
+        }
+      >
+        <CourseImage
+          src={course.coverImageUrl}
+          alt={course.title}
+          className="aspect-video w-full object-cover"
+        />
+        <CardHeader>
+          {label && (
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+              {label}
+            </p>
+          )}
+          <Title
+            className={`font-semibold leading-snug group-hover:text-primary${label ? " text-xl" : ""}`}
+          >
+            {course.title}
+          </Title>
+        </CardHeader>
+        <CardContent>
+          <p className="line-clamp-2 text-sm text-muted-foreground">
+            {course.description}
+          </p>
+        </CardContent>
+        <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <User className="size-3" />
+            {course.instructorName ?? "Instructor"}
+          </span>
+          <span className="flex items-center gap-1">
+            <BookOpen className="size-3" />
+            {course.lessonCount} lessons
+          </span>
+        </CardFooter>
+      </Card>
+    </Link>
+  );
+}
+
+function Stat({
+  icon: Icon,
+  value,
+  label,
+}: {
+  icon: typeof BookOpen;
+  value: string | number;
+  label: string;
+}) {
+  return (
+    <div className="flex items-center gap-4">
+      <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+        <Icon className="size-6 text-primary" />
+      </div>
+      <div>
+        <p className="text-2xl font-bold">{value}</p>
+        <p className="text-sm text-muted-foreground">{label}</p>
+      </div>
     </div>
   );
 }
